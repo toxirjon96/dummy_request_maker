@@ -16,8 +16,14 @@ class DummyRequestMakerLogic {
         convertList: Posts.convertList(),
       );
 
+      ///get posts by id
       print(await request.getById("/posts/1"));
+
+      ///get all posts
       print(await request.get("/posts"));
+
+      ///delete by posts id
+      print(await request.delete("/posts/1"));
     } on HttpUrlException catch (e) {
       print(e.message);
     } on JsonDecodeException catch (e) {
