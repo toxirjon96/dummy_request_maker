@@ -16,8 +16,8 @@ class DummyRequestMakerLogic {
         convertList: Posts.convertList(),
       );
 
-      print(await request.getRequestById("/posts/1"));
-      print(await request.getRequest("/posts"));
+      print(await request.getById("/posts/1"));
+      print(await request.get("/posts"));
     } on HttpUrlException catch (e) {
       print(e.message);
     } on JsonDecodeException catch (e) {

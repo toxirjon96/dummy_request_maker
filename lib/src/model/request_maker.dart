@@ -1,5 +1,5 @@
 import 'package:dummy_request_maker/dummy_request_maker_library.dart';
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 
 class RequestMaker<T> {
   late final String _baseUrl;
@@ -31,12 +31,11 @@ class RequestMaker<T> {
 
   Function(Map<String, Object?> json) get convertList => _convertList;
 
-  Future<T?> getRequestById(String subUrl,
-      {Map<String, String>? headers}) async {
+  Future<T?> getById(String subUrl, {Map<String, String>? headers}) async {
     try {
       String url = "$baseUrl$subUrl";
       _checkUrl(url);
-      Response response = await get(
+      http.Response response = await http.get(
         Uri.parse(url),
         headers: headers,
       );
@@ -51,12 +50,11 @@ class RequestMaker<T> {
     }
   }
 
-  Future<List<T?>?> getRequest(String subUrl,
-      {Map<String, String>? headers}) async {
+  Future<List<T?>?> get(String subUrl, {Map<String, String>? headers}) async {
     try {
       String url = "$baseUrl$subUrl";
       _checkUrl(url);
-      Response response = await get(
+      http.Response response = await http.get(
         Uri.parse(url),
         headers: headers,
       );
@@ -65,6 +63,85 @@ class RequestMaker<T> {
     } on HttpUrlException {
       rethrow;
     } on JsonDecodeException {
+      rethrow;
+    } on HttpStatusCodeException {
+      rethrow;
+    } catch (e) {
+      throw HttpRequstException(e.toString());
+    }
+  }
+
+  Future<T?> post(
+    String subUrl, {
+    Object? body,
+    Encoding? encoding,
+    Map<String, String>? headers,
+  }) async {
+    try {
+      String url = "$baseUrl$subUrl";
+      _checkUrl(url);
+
+      http.Response response = await http.post(
+        Uri.parse(url),
+        body: body,
+        encoding: encoding,
+        headers: headers,
+      );
+      _statusCodeException(response, 201);
+      return _getObject(response.body);
+    } on HttpUrlException {
+      rethrow;
+    } on HttpStatusCodeException {
+      rethrow;
+    } catch (e) {
+      throw HttpRequstException(e.toString());
+    }
+  }
+
+  Future<T?> delete(
+    String subUrl, {
+    Object? body,
+    Encoding? encoding,
+    Map<String, String>? headers,
+  }) async {
+    try {
+      String url = "$baseUrl$subUrl";
+      _checkUrl(url);
+      http.Response response = await http.delete(
+        Uri.parse(url),
+        body: body,
+        encoding: encoding,
+        headers: headers,
+      );
+      _statusCodeException(response, 200);
+      return _getObject(response.body);
+    } on HttpUrlException {
+      rethrow;
+    } on HttpStatusCodeException {
+      rethrow;
+    } catch (e) {
+      throw HttpRequstException(e.toString());
+    }
+  }
+
+  Future<T?> put(
+    String subUrl, {
+    Object? body,
+    Encoding? encoding,
+    Map<String, String>? headers,
+  }) async {
+    try {
+      String url = "$baseUrl$subUrl";
+      _checkUrl(url);
+      http.Response response = await http.put(
+        Uri.parse(url),
+        body: body,
+        encoding: encoding,
+        headers: headers,
+      );
+      _statusCodeException(response, 200);
+      return _getObject(response.body);
+    } on HttpUrlException {
       rethrow;
     } on HttpStatusCodeException {
       rethrow;
@@ -107,7 +184,7 @@ class RequestMaker<T> {
     }
   }
 
-  void _statusCodeException(Response response, int statuscode) {
+  void _statusCodeException(http.Response response, int statuscode) {
     if (response.statusCode != statuscode) {
       throw HttpStatusCodeException("Request returns ${response.statusCode}.");
     }
